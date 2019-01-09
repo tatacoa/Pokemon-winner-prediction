@@ -25,13 +25,14 @@ library(fmsb)
 library(rpart.plot)
 #install.packages('ROCR')
 library(ROCR)
-library(tidyverse)
+#install.packages('tidyverse')
+#library(tidyverse)
 library(ggplot2)
 
 # Load data
-setwd("~/Pokemon")
-pokemon <- read.csv('./Data/pokemon.csv')
-fights <- read.csv('./Data/combats.csv')
+setwd("~/Documents/Pokemon-winner-prediction")
+pokemon <- read.csv('./pokemon.csv')
+fights <- read.csv('./combats.csv')
 
 #EDV PLots
 par(las=2)
@@ -71,10 +72,11 @@ colnames(fights)
 
 names <- pokemon[,c(1,2)]; head(names) # join id with pokemon name
 colnames(names)
-head(pokemon)
+head(names)
 
-#Map the figths table from id to pokemon name
-fights <- data.frame(lapply(fights, function(x) names$Name[match(x,names$X.)]))
-head(fights)
+
+
+
+
 
 
