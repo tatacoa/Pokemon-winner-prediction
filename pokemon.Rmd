@@ -1,0 +1,71 @@
+---
+title: "Pokemon Winner Prediction"
+author: "Ana Maria, Arturo, Shuaib, Viktor"
+date: "1/9/2019"
+output:
+  html_document:
+    toc: true
+    theme: lumen
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+```
+
+## 1 Introduction
+
+### 1.1 The Data
+
+```{r, include=FALSE}
+setwd("~/Documents/Pokemon-winner-prediction")
+pokemon <- read.csv('./pokemon.csv')
+fights <- read.csv('./combats.csv')
+```
+
+
+X. ID for each pokemon
+Name: Name of each pokemon
+Type 1: Each pokemon has a type, this determines weakness/resistance to attacks
+Type 2: Some pokemon are dual type and have 2
+Total: sum of all stats that come after this, a general guide to how strong a pokemon is
+HP: hit points, or health, defines how much damage a pokemon can withstand before fainting
+Attack: the base modifier for normal attacks (eg. Scratch, Punch)
+Defense: the base damage resistance against normal attacks
+SP Atk: special attack, the base modifier for special attacks (e.g. fire blast, bubble beam)
+SP Def: the base damage resistance against special attacks
+Speed: determines which pokemon attacks first each round
+
+```{r cars}
+summary(cars)
+```
+
+## Data Exploration
+
+```{r load, include=FALSE}
+#Libraries
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+#install.packages('corrplot')
+library(corrplot)
+#install.packages('caret')
+library(caret)
+#install.packages('ggthemes')
+library(ggthemes)
+library(RColorBrewer)
+#install.packages('fmsb')
+library(fmsb)
+#install.packages('rpart.plot')
+library(rpart.plot)
+#install.packages('ROCR')
+library(ROCR)
+library(ggplot2)
+```
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

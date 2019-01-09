@@ -25,11 +25,12 @@ library(fmsb)
 library(rpart.plot)
 #install.packages('ROCR')
 library(ROCR)
-library(tidyverse)
+#install.packages('tidyverse')
+#library(tidyverse)
 library(ggplot2)
 
 # Load data
-setwd("/Users/yunussh/playground/Pokemon-winner-prediction")
+setwd("~/Documents/Pokemon-winner-prediction")
 pokemon <- read.csv('./pokemon.csv')
 fights <- read.csv('./combats.csv')
 
