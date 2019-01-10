@@ -111,19 +111,19 @@ for(i in 1:nrow(res)){
              axislabcol="black", caxislabels=seq(0,2000,5), cglwd=0.8, vlcex=0.8,
              title=as.character(res$Type.1[i]))
 }
-names <- pokemon[,c(1,2)]; head(names) # join id with pokemon name
-colnames(names)
-head(pokemon)
 
 ##### DATA MANIPULATION #####
-
+levels(pokemon$Name)[levels(pokemon$Name)==""] <- "Primeape" # pokemon name was not defined
+#pokemon[63,2] <- factor(63, labels = "Primeape")
 names <- pokemon[,c(1,2)]; head(names) # join id with pokemon name
+colSums(is.na(names))
 colnames(names)
 head(pokemon)
 
 #Map the figths table from id to pokemon name
 fights.name <- data.frame(lapply(fights, function(x) names$Name[match(x,names$X.)]))
 head(fights.name)
+sapply(fights.name, function(x) length(unique(x))) # only 784 of 800 pokemon fought
 
 get_win_table <- function() {
   counts <- group_by(fights.name, Winner)
@@ -144,6 +144,7 @@ get_seconds_table <- function() {
 }
 
 win_table <- get_win_table()
+win_table$Winner
 firsts_table <- get_firsts_table()
 seconds_table <- get_seconds_table()
 
