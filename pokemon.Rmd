@@ -3,10 +3,12 @@ title: "Pokemon Winner Prediction"
 author: "Ana Maria, Arturo, Shuaib, Viktor"
 date: "1/9/2019"
 output:
+  pdf_document:
+    toc: yes
   html_document:
-    toc: true
-    theme: lumen
     code_folding: hide
+    theme: lumen
+    toc: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -19,8 +21,8 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
 
 ```{r, include=FALSE}
 setwd("~/Documents/Pokemon-winner-prediction")
-pokemon <- read.csv('./pokemon.csv')
-fights <- read.csv('./combats.csv')
+pokemon <- read.csv('./data/pokemon.csv')
+fights <- read.csv('./data/combats.csv')
 ```
 
 
@@ -40,7 +42,7 @@ Speed: determines which pokemon attacks first each round
 summary(cars)
 ```
 
-## Data Exploration
+## 2 Data Exploration
 
 ```{r load, include=FALSE}
 #Libraries
@@ -69,3 +71,11 @@ plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## 3 Model
+
+### 3.1 Linear Regression Lasso
+
+### 3.2 SVM
+
+
