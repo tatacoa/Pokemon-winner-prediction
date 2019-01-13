@@ -361,15 +361,166 @@ write.csv(final_data, file="./data/Model_data.csv")
 ```
 
 
-
-
-
 ## 3 Model
 
-### 3.1 Linear Regression Ridge and Lasso
+For our win ration prediction, we tried out three different models, which we will discuss in the following. The predictor variables are the same for all three models, which are all the numerical feature values for each pokemon as well as its legendary status and how often it attacked first and how often it attacked second. We also tried to one hot encode the type of the pokemon and include this information into the model but it did not improve the model quality, so we dropped the type information.
 
-### 3.2 SVM
+```{r}
+# Load Data
+feats <- read.csv('data/features.csv')
 
-## 4 References
+colSums(is.na(feats)) # some pokemon never fought
+# remove pokemons that never won
+feats_clean <- na.omit(feats)
+feats_clean$Legendary <- as.integer(as.logical(feats_clean$Legendary)) # convert category legendary into numerical values
+feats_clean <- select(feats_clean, -c(Generation, win_counts, losses)) # drop unnecessary generation column
+# typ <- as.integer(feats_clean$Type.1)
+#split train test data
+trainIndex = createDataPartition(feats_clean$win_ratio,
+                                 p=0.6, list=FALSE, times=1)
+
+train = feats_clean[trainIndex,] # 60% training data
+test_val = feats_clean[-trainIndex,]
+
+trainIndex = createDataPartition(test_val$win_ratio,
+                                 p=0.5, list=FALSE, times=1)
+val = test_val[trainIndex,] # 20% validation data
+test = test_val[-trainIndex,] # 20% test data
+
+
+# create Target variable
+y_train <- train$win_ratio
+y_val <- val$win_ratio
+y_test <- test$win_ratio
+
+
+x_train <- train[6:13]
+x_val <- val[6:13]
+x_test <- test[6:13]
+```
+
+### 3.1 Linear Regression Ridge
+As the first model, we fitted the data into a Ridge regression model. The Ridge regression model is as well as the Lasso regression a shrinkage method. Instead of minimizing the Residual sum of squares (RSS) it minimizes the RSS combined with the coefficients shrunken by a lambda factor. 
+
+To find the best model we tried different values for lambda and chose the model with the smallest Root mean squared error (RMSE). The RMSE is the metric to evaluate the quality of a model. The smaller the error, the better the predicted values.
+
+```{r}
+# Ridge regression
+trainControl = trainControl(method="repeatedcv",
+                                number=5,
+                                repeats=5,
+                                verboseIter=FALSE)
+lambdas <- seq(1,0,-0.001)
+model_ridge <- train(x=x_train,y=y_train,
+                     method="glmnet",
+                     metric="RMSE",
+                     maximize=FALSE,
+                     trControl=trainControl,
+                     tuneGrid=expand.grid(alpha=0, # Ridge regression
+                                          lambda=lambdas))
+# model_ridge
+```
+
+Results: The model with the best prediction quality is with lambda = 0.023. This model has a RMSE of around 0.08, which is pretty precise in its prediction.
+
+This plot shows the relation between the different lambda values and the RMSE. As one can see in the the smaller the lambda the smaller RMSE.
+```{r}
+# plot the effect of chosen lambda on the RMSE
+ggplot(data=model_ridge$results[model_ridge$results$RMSE<=0.10,]) +
+  geom_line(aes(x=lambda,y=RMSE))
+```
+
+```{r}
+# quality of model
+cat("The best RMSE for this model is:", mean(model_ridge$resample$RMSE))
+```
+
+We also tried to include the information about the types of the Pokemons and therefore, we used one hot encoding for that categorical variable. But that additional information did not improve the model quality. To keep the model sparse we decided to not use the variable.
+
+
+
+
+### 3.2 Linear Regression Lasso
+To compare our results to another regression model, we decided to fit the data to a Lasso regression model. Lasso regression is a variant of the Ridge regression. Lasso uses the absolute value if the coefficients in the penalty term and thus, can shrink the estimates coefficients to zero. This results in a variable selection and makes the model more sparse and easier to interpret.
+
+```{r}
+# Lasso regression
+model_lasso <- train(x=x_train,y=y_train,
+                     method="glmnet",
+                     metric="RMSE",
+                     maximize=FALSE,
+                     trControl=trainControl,
+                     tuneGrid=expand.grid(alpha=1,  # Lasso regression
+                                          lambda=c(1,0.1,0.05,0.01,seq(0.009,0.001,-0.001),
+                                                   0.00075,0.0005,0.0001)))
+#model_lasso
+```
+
+Results: The best Lasso model has a lambda value of 0.003 and a RMSE slightly below the previous RMSE. So it seems that Lasso has a slightly better prediction quality than the Ridge model. Later we will discover which estimator variables were shrunken to zero and therefore not used.
+
+```{r}
+# quality of model
+cat("The best RMSE for this model is:", mean(model_lasso$resample$RMSE))
+```
+
+In the next step we validated the two regression models with our splitted validation data set. 
+
+```{r}
+# quality of model
+predLasso <- predict(model_lasso,newdata = x_val)
+predRidge <- predict(model_ridge, newdata = x_val)
+
+# function for calculating the metric
+rmse <- function(actual, predicted)
+{
+  error <- actual - predicted
+  sqrt(mean(error^2))
+}
+
+cat("The RMSE for the Lasso model is", rmse(y_val, predLasso), "and for the Ridge model", rmse(y_val, predRidge))
+```
+
+The results indicate that the models are not overfitted and can predict the win ratio of a certain Pokemon quite accurate. The Lasso model seems to perform better on this task.
+
+The next plot shows which estimate variables are more important for the prediction.
+
+```{r}
+# quality of model
+# extract coefficients for the best performing model
+coef <- data.frame(coef.name = dimnames(coef(model_lasso$finalModel,s=model_lasso$bestTune$lambda))[[1]], 
+                   coef.value = matrix(coef(model_lasso$finalModel,s=model_lasso$bestTune$lambda)))
+
+# exclude the (Intercept) term
+coef <- coef[-1,]
+
+# print summary of model results
+picked_features <- nrow(filter(coef,coef.value!=0))
+not_picked_features <- nrow(filter(coef,coef.value==0))
+
+cat("Lasso picked",picked_features,"variables and eliminated the other",
+    not_picked_features,"variables\n")
+
+# sort coefficients in ascending order
+coef <- arrange(coef,-coef.value)
+
+# extract the top 10 and bottom 10 features
+imp_coef <- rbind(head(coef,10),
+                  tail(coef,10))
+
+ggplot(imp_coef) +
+  geom_bar(aes(x=reorder(coef.name,coef.value),y=coef.value),
+           stat="identity") +
+  ylim(min(imp_coef$coef.value),max(imp_coef$coef.value)) +
+  coord_flip() +
+  ggtitle("Coefficents in the Lasso Model") +
+  theme(axis.title=element_blank())
+```
+
+### 3.3 Conclusions
+Our conclusion for the regression part is that both models perform well in this task. The Lasso model performes slightly better than its Ridge counterpart. This may result from the fact that in the Lasso models some variables are eliminated through the shrinkage term. 
+
+Both models are not overfitted and can handle new data to predict the correct win ratio, as the RMSE of the fitted validation data is also small. 
+
+The Speed attribute of Pokemons is most important when it comes to winning a match. Attack and Defense seem also to play a bigger role, while the other estimate variables do not affect the outcome of a fight that much. 
 
 
