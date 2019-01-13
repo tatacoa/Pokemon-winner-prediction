@@ -3,11 +3,11 @@ title: "Pokemon Winner Prediction"
 author: "Ana Maria, Arturo, Shuaib, Viktor"
 date: "13/01/2019"
 output:
+  pdf_document:
+    toc: yes
   html_document:
     code_folding: hide
     theme: lumen
-    toc: yes
-  pdf_document:
     toc: yes
 bibliography: references.bib
 ---
@@ -21,22 +21,22 @@ knitr::opts_chunk$set(echo = TRUE, fig.align = "center", fig.width=12, fig.heigh
 "Pokemon are fantasy creatures in the series of video games of the same name. The games were originally developed by Satoshi Tajiri and the Japanese game software company GAME FREAK Inc. and represent one of the most important franchises of the publisher Nintendo. The Pokémon can be captured, collected and trained by the player. The success of the game, which was first released in 1996, was followed by an anime television series, a trading card game, a large number of merchandising products and, since 1998, 21 feature films. The video games of the Pokémon franchise have sold more than 200 million copies worldwide"  [@Wikipedia]
 
 
-### 1.1 The Task
-The task is to model the pokemon dataset using supervised learning methods. Our goal is to predict the probability of winning for a Pokemon. We will use two regression models to do that. First we will use Linear regression (Ridge and Lasso), and second we will use Decision Tree. The pre-processed data will be divided into 60% train, 20% Validation and 20% test data. 
+### 1.1 Task
+Our goal is to predict the probability of winning for a Pokemon using supervised learning methods. We will use two regression models to do that. First, we will use Linear regression (Ridge and Lasso), and second we will use Decision Tree. The preprocessed data will be split into 60% train, 20% validation and 20% test data. 
 
 
-### 1.2 The Tools
-In the process of the group work, we have been using Github and R Studio. With Github we were able to share our R scripts. R Studio has been the choice of our local working environment due to the fact that all lectures have been complemented with R Studio. Hence the environment was known to each team member. 
+### 1.2 Tools
+In the process of the group work, we have been using Github and R Studio. With Github we were able to share our R scripts. R Studio has been the choice of our local working environment due to the fact that lab sessions are carried out in R Studio. Hence the environment was known to each team member.
 
-### 1.3 The Data
+### 1.3 Data
 The two dataset used in the project were obtained from Nintendo's famous original Pokemon video game.
 
-The pokemon dataset contains a full set of in-game statistics for 800 pokemon in the 6 generations of video games form the Pokemon world. It also includes full information on pokemon description, power, type and from wich generation it belongs (pokemon.csv).
+The pokemon dataset contains a full set of in-game statistics for 800 pokemon in the 6 generations of video games that form the Pokemon world. It also includes data about each pokemon's description, power, type and generation it belongs to. The data is stored in `pokemon.csv`.
 
-The combats dataset is a collection of 50.000 combats between two pokemon and the winner of the figth (combats.csv). 
+The combats dataset is a collection of 50,000 combats between two pokemons and the pokemon that won. This data is stored in combats.csv.
 
 ```{r, include=FALSE}
-setwd("~/Documents/Pokemon-winner-prediction")
+setwd("~/playground/Pokemon-winner-prediction")
 pokemon <- read.csv('./data/pokemon.csv')
 fights <- read.csv('./data/combats.csv')
 ```
@@ -72,7 +72,7 @@ library(ggplot2)
 | Speed      | determines which pokemon attacks first each round                                      |
 | Generation | Video game version                                                                     |
 | Legendary | if the Pokemon is legendary or not                                                                     |
-Pokemon generation refers to a chronological division by release; The fisrt generation of the video game came up in 1996 "Pokemon Red and Green" for Game Boy [@Wikipedia], each new generation brings to live new Pokemon, characters and features. In the dataset there are Pokemon from 6 generations.
+Pokemon generation refers to a chronological division by release. The first generation of the video game came up in 1996 "Pokemon Red and Green" for Game Boy [@Wikipedia], each new generation brings to life new Pokemon, characters and features. In the dataset there are Pokemon from 6 generations.
 
 ```{r generations, fig.height = 3, fig.width = 5}
 print('Pokemon Generation')
@@ -80,8 +80,7 @@ table(pokemon$Generation)
 barplot(table(pokemon$Generation), col=heat.colors(6), main = 'Pokemon Generation', xlab = 'Generation', ylab = 'Count')
 ```
 
-Type 1 and type 2 refers to the main trait or element that the Pokemon possesses. Some pokemon have two main traits, while others only have one. Having several types of traits can present an advantage for the Pokemon at the moment of a fight.
-
+Type 1 and type 2 refers to the main trait or element that the Pokemon possesses. Some pokemon have two main traits, while others only have one. Having several types of traits can present an advantage for a Pokemon during a fight.
 
 ```{r types1, fig.height = 3, fig.width = 5}
 print('Pokemon Type 1')
@@ -93,7 +92,7 @@ barplot(sort(table(pokemon$Type.1)),
         main = 'Type 1 Pokemon',
          ylab = 'Count')
 ```
-The most common type of pokemon is the water type with 112 pokemon, followed by Normal type 98 pokemon and Grass type 70 pokemon. The least common type 1 among the 800 pokémon is the Flying type with only 4 pokémon. 
+The most common type of pokemon is the Water type with 112 pokemon, followed by Normal type with 98 pokemon, and Grass type with 70 pokemon. The least common type 1 among the 800 pokémon is the Flying type with only 4 pokémon. 
 
 ```{r types2, fig.height = 3, fig.width = 5}
 par(las=2)
@@ -104,21 +103,21 @@ barplot(sort(table(pokemon$Type.2)),
         main = 'Type 2 Pokemon', ylab = 'Count')
 ```
 
-For 386 pokemon there is no type 2 registered. This simply indicates that for these pokemones there is only one type of element in which they are strong. Another interesting fact is that the type flying for type 1 is very rare, but for type 2 is one of the most common. 
+For 386 pokemon, there is no type 2 recorded. This simply indicates that for these pokemones there is only one type of element in which they are strong. Another interesting fact is that the type Flying as type 1 is very rare, but as type 2 it's one of the most common.
 
-The Pokemon table has a dimension of:
+The Pokemon table has these dimensions:
 ```{r}
 dim(pokemon)
 ```
-The columns name as described before are:
+The column names as described before are:
 ```{r}
 names(pokemon)
 ```
-This is how the data look like:
+This is what the data looks like:
 ```{r}
 head(pokemon)
 ```
-There are no missing values in the Pokemon dataset.
+There are no missing values in the Pokemon dataset:
 ```{r}
 colSums(is.na(pokemon))
 ```
@@ -131,41 +130,41 @@ colSums(is.na(pokemon))
 | Second_pokemon | Pokemon that attack second |
 | Winner         | Winner of the combat       |
 
-The entries in combat.csv are the ids of the Pokemon found in pokemon.csv, later we will make a data handling to this dataset to change the ids to Pokemon names in order to have a better understanding.
+The entries in `combat.csv` are the ids of the Pokemon found in `pokemon.csv`. In a later step, we will convert the ids in this dataset to Pokemon names for clarity.
 
-The Pokemon table has a dimension of:
+The Pokemon table has dimensions of:
 ```{r}
 dim(fights)
 ```
-The columns name as described before are:
+The column names as described before are:
 ```{r}
 names(fights)
 ```
-This is how the data look like:
+This is what the data look like:
 ```{r}
 head(fights)
 ```
-There are no missing values in the Pokemon dataset.
+There are no missing values in the Pokemon dataset:
 ```{r}
 colSums(is.na(fights))
 ```
-This combat dataset contains fifty thousand battles between pokemon and its corresponding winner. Here we have grouped by winner.
+This combat dataset contains fifty thousand battles between pokemon and the corresponding winner. Here we have grouped the fights by winner.
 ```{r data_figths}
 print('Winner Table')
 wins <- group_by(fights, Winner)
 summarise(wins, count = n())
 ```
 
-Up to this point, we have presented the data, we also indicated the purpose of this report will be to predict the probability of winning for a pokemon using two regression models (Linear regression and decision trees) and finally we will choose which model is more suitable for our data.
+Up to this point, we've presented the data; we've indicated the purpose of this report will be to predict the probability of winning for a pokemon using two regression models (Linear regression and decision trees); and we will ultimately choose the model that is more suitable for our data.
 
 ## 2 Exploratory Data Analysis
 
-Before modeling our data. The first step is to make a descriptive analysis of the dataset. 
+Before modeling our data, the first step is to perform a descriptive analysis of the dataset. 
 
 ### 2.1 Data Visualization
 
 #### 2.1.1 Data Correlation
-To check for any statistical association between the pokemon features we perform a correlation plot. 
+To check for any statistical association between the pokemon features, we create a correlation plot.
 
 ```{r data_cor}
 # visualization
@@ -174,9 +173,9 @@ featCorr <- cor(select(pokemon, HP, Attack, Defense, Sp..Atk, Sp..Def, Speed )) 
 corrplot(featCorr, method = "color", type = "upper", addCoef.col = "black", tl.col = "black", diag = FALSE)
 ```
 
-When looking at the correlation plot, there is no strong correlation (greater than 0.80) between two features, even the highest correlation is between Defense vs. Sp..Def and Sp..Atk vs..Def which in both cases is 0.51 a positive correlation. The cor values indicates how close two variables are to having a linear relationship with each other [@Wikipedia]. 
+When looking at the correlation plot, there is no strong correlation (greater than 0.80) between any two features. The highest correlation is between Defense vs. Sp..Def and Sp..Atk vs..Def, which in both cases is a positive correlation of 0.51. The cor values indicates how close two variables are to having a linear relationship with each other [@Wikipedia]. 
 
-Testing for Correlations is useful because they can indicate dependency and highly correlated variables are not desired at the moment of modeling (test for independence).
+Testing for correlations is useful because it can indicate dependency, and highly correlated variables are not desirable for modeling.
 
 #### 2.1.2 Feature Distribution by Pokemon Type
 ```{r data_Type}
@@ -213,7 +212,7 @@ boxplot(Defense ~ Type.1,
 
 #### 2.1.3
 
-The sum of all the numerical features is a good indication of how strong a pokemon is. Next there is a plot that brings together all the numerical characteristics of the Pokemon dataset, and shows which type of Pokemon is the strongest, and therefore most likely to win a battle. 
+The sum of all the numerical features is a good indication of how strong a pokemon is. Next, there is a plot that brings together all the numerical characteristics of the Pokemon dataset. It shows which type of Pokemon is the strongest and therefore most likely to win a battle.
 
 ```{r data_pokemon_char}
 # set color for each pokemon type for plotting // hex codes from http://www.epidemicjohto.com/t882-type-colors-hex-colors
@@ -244,31 +243,31 @@ for(i in 1:nrow(res)){
 }
 ```
 
-The plots are sorted from strongest to weakest in relation to the sum of their characteristics.The Dragon Type pokémon are the strongest and the Bug Type pokémon are the weakest.
+The plots are sorted from strongest to weakest in relation to the sum of their characteristics. The Dragon Type pokémon are the strongest and the Bug Type pokémon are the weakest.
 
 ### 2.2 Data Preprocessing for Modeling
 
-To start the data pre-processing, we found a pokemon that didn't have his name. It is the Primeape pokemon and we added it to the pokemon table.
+At the start of the data preprocessing step, we found a pokemon without a name. It turned out to be the Primeape pokemon and we added it to the pokemon table.
 
 ```{r}
 levels(pokemon$Name)[levels(pokemon$Name)==""] <- "Primeape" # pokemon name was not given
 ```
 
-Create an object called names that contain only pokemon id and pokemon name.
+Create an object called `names` that contains only pokemon id and pokemon name.
 ```{r}
 names <- pokemon[,c(1,2)]; head(names) # join id with pokemon name
 colnames(names)
 
 ```
 
-We use the new object 'names' to map the corresponding Id in the combat dataset. After mapping the names into the dataset we observ that only 784 out of 800 Pokemon fougth (in our dataset).
+We use the new object `names` to map ids to their corresponding names in the combat dataset. After the mapping, we observe that only 784 out of 800 Pokemon fought (in our dataset).
 ```{r}
 #Map the figths table from id to pokemon name
 fights.name <- data.frame(lapply(fights, function(x) names$Name[match(x,names$X.)]))
 head(fights.name)
 ```
 
-From the 784 that fought in a battle one of them never won.
+Of the 784 that fought in battle, one of them never won.
 ```{r}
 sapply(fights.name, function(x) length(unique(x))) # only 784 of 800 pokemon fought
 ```
@@ -298,7 +297,7 @@ firsts_table <- get_firsts_table()
 seconds_table <- get_seconds_table()
 ```
 
-The next step was to add the combats table information into the pokemon table. To do this we counted the number of times a pokemon fought, won, attacked first or second and added it to the pokemon table.
+The next step was to add the combat table information into the pokemon table. To do this, we counted the number of times a pokemon fought, won, attacked first or second and added it to the pokemon table.
 
 ```{r}
 win_counts <- sapply(pokemon$Name, function(x) win_table$count[match(x,win_table$Winner)])
@@ -317,24 +316,24 @@ And finally we save this file as "features.csv"
 write.csv(pokemon_feats, file="./features.csv")
 ```
 
-### 2.3 Hot Encoding Categorical Data
-For the hot encoding we are going to continue with the dataset we created in section 2.2. We load the file and check again for any missing value.
+### 2.3 One Hot Encoding Categorical Data
+Continuing with the dataset we created in section 2.2, we'll one hot encode categorical variables. We load the file and check again for any missing values.
 ```{r}
 feats <- read.csv('./data/features.csv')
 colSums(is.na(feats))
 ```
-We know that not all the pokémon fought and that's why we have missing values. to continue with the model we will eliminate all the row with missing values.
+We know that not all the pokémon fought and that's why we have missing values. To proceed with modelling, we'll eliminate all the rows with missing values.
 ```{r}
 feats2 <- feats[-(which(is.na(feats$win_ratio))),]
 dim(feats2)
 colnames(feats2)
 ```
-we also found that the column of Id X. is duplicated, and for the hot encoding we don't need the name of the pokemon. we take them out of the dataset.
+We also found a duplicate in the id column `X.`, but since we don't need the name of the pokemon for one hot encoding, we take them out of the dataset.
 ```{r}
 feats2 <- feats2[,c(4:18)]; head(feats2); 
 dim(feats2)
 ```
-Now we must distinguish between numerical and categorical features, for this we create an object with all the features and their class. and we create another object that includes only the numerical features colnames and the same for categorical features.
+Now we must distinguish between numerical and categorical features. To do this, we create an object with all features and their class. We then create another object that includes only the numerical features' `colnames` and the same for categorical features.
 ```{r}
 feature_classes <- sapply(names(feats2),function(x){class(feats[[x]])})
 feature_classes
@@ -345,7 +344,7 @@ categorical_feats <- names(feats2[feature_classes == "character" |
                             feature_classes == "factor"])
 categorical_feats
 ```
-Finally we use the R dummyvars function to do the hot encoding of the categorical variables and then we have filled with zeros the fields with Nan values. 
+Finally we use the R dummyvars function to do one hot encode the categorical variables, which fills with zeros all fields with NaN values. 
 ```{r}
 dummies <- dummyVars(~.,feats2[categorical_feats])
 categorical_1_hot <- predict(dummies,feats2[categorical_feats])
@@ -354,21 +353,19 @@ categorical_1_hot[is.na(categorical_1_hot)] <- 0
 head(dummies)
 head(categorical_1_hot)
 ```
-To finish the pre-processing, we will merge the numerical data with the categorical data after the hot encoded in a data frame and the result will be saved in a file for the data modeling.
+To finish the pre-processing step, we merge the numerical data with the categorical data after hot encoding in a data frame, and the result will be saved in a file for data modeling.
 ```{r}
 final_data <- cbind(feats2[numeric_feats],categorical_1_hot)
 write.csv(final_data, file="./data/Model_data.csv")
 ```
 
-
 ## 3 Model
 
-For our win ration prediction, we tried out three different models, which we will discuss in the following. The predictor variables are the same for all three models, which are all the numerical feature values for each pokemon as well as its legendary status and how often it attacked first and how often it attacked second. We also tried to one hot encode the type of the pokemon and include this information into the model but it did not improve the model quality, so we dropped the type information.
+For our win ratio prediction, we tried out three different models, which we will discuss in the following. The predictor variables are the same for all three models, which are all the numerical feature values for each pokemon as well as its legendary status and how often it attacked first and how often it attacked second. We also tried to one hot encode the type of the pokemon and include this information into the model but it did not improve the model quality, so we dropped the type information.
 
 ```{r}
 # Load Data
 feats <- read.csv('data/features.csv')
-
 colSums(is.na(feats)) # some pokemon never fought
 # remove pokemons that never won
 feats_clean <- na.omit(feats)
@@ -378,22 +375,16 @@ feats_clean <- select(feats_clean, -c(Generation, win_counts, losses)) # drop un
 #split train test data
 trainIndex = createDataPartition(feats_clean$win_ratio,
                                  p=0.6, list=FALSE, times=1)
-
 train = feats_clean[trainIndex,] # 60% training data
 test_val = feats_clean[-trainIndex,]
-
 trainIndex = createDataPartition(test_val$win_ratio,
                                  p=0.5, list=FALSE, times=1)
 val = test_val[trainIndex,] # 20% validation data
 test = test_val[-trainIndex,] # 20% test data
-
-
 # create Target variable
 y_train <- train$win_ratio
 y_val <- val$win_ratio
 y_test <- test$win_ratio
-
-
 x_train <- train[6:13]
 x_val <- val[6:13]
 x_test <- test[6:13]
@@ -469,14 +460,12 @@ In the next step we validated the two regression models with our splitted valida
 # quality of model
 predLasso <- predict(model_lasso,newdata = x_val)
 predRidge <- predict(model_ridge, newdata = x_val)
-
 # function for calculating the metric
 rmse <- function(actual, predicted)
 {
   error <- actual - predicted
   sqrt(mean(error^2))
 }
-
 cat("The RMSE for the Lasso model is", rmse(y_val, predLasso), "and for the Ridge model", rmse(y_val, predRidge))
 ```
 
@@ -489,24 +478,18 @@ The next plot shows which estimate variables are more important for the predicti
 # extract coefficients for the best performing model
 coef <- data.frame(coef.name = dimnames(coef(model_lasso$finalModel,s=model_lasso$bestTune$lambda))[[1]], 
                    coef.value = matrix(coef(model_lasso$finalModel,s=model_lasso$bestTune$lambda)))
-
 # exclude the (Intercept) term
 coef <- coef[-1,]
-
 # print summary of model results
 picked_features <- nrow(filter(coef,coef.value!=0))
 not_picked_features <- nrow(filter(coef,coef.value==0))
-
 cat("Lasso picked",picked_features,"variables and eliminated the other",
     not_picked_features,"variables\n")
-
 # sort coefficients in ascending order
 coef <- arrange(coef,-coef.value)
-
 # extract the top 10 and bottom 10 features
 imp_coef <- rbind(head(coef,10),
                   tail(coef,10))
-
 ggplot(imp_coef) +
   geom_bar(aes(x=reorder(coef.name,coef.value),y=coef.value),
            stat="identity") +
@@ -522,5 +505,3 @@ Our conclusion for the regression part is that both models perform well in this 
 Both models are not overfitted and can handle new data to predict the correct win ratio, as the RMSE of the fitted validation data is also small. 
 
 The Speed attribute of Pokemons is most important when it comes to winning a match. Attack and Defense seem also to play a bigger role, while the other estimate variables do not affect the outcome of a fight that much. 
-
-
