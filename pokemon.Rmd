@@ -594,7 +594,7 @@ Finally we predict and calculate the RMSE for the test data, to compare it with 
 p2<- predict(tree, x_test)
 rmse(y_test, p2)
 ```
-### 4.2 Decision Tree Conclusion
-The trained regression tree model performed very well in predicting the test and validation data. With the train data (60%) we got a RMSE of 0.07 - 0.088, which is an accurate prediction
-of the model. The basic model without a complexity parameter worked also very well and without overfitting. Nevertheless, we decided to use the complexity parameter to get a smaller
-tree plot with the most important splits. So, finally we have 4 splits instead of 7.
+
+## 5 Conclusions
+
+## 6 References
