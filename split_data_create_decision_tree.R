@@ -3,8 +3,11 @@ library(rpart.plot)
 library(dplyr)
 library(caret)
 
+# Set path
+setwd("~/test_tree")
+
 # Read in
-features <- read.csv('data/features.csv')
+features <- read.csv('data/features/features.csv')
 
 # some pokemon never fought
 colSums(is.na(features))
@@ -55,19 +58,24 @@ rmse <- function(actual, predicted)
 
 # Train the decision tree with y_train as target and all the columns from x_train
 # Because we are using continious variable as the target value, we have to use a regression tree = anova
-fit <- rpart(y_train ~ . , data = x_train, method='anova')
+tree <- rpart(y_train ~ . , data = x_train, method='anova')
+rpart.plot(tree, type=3, digits=3, fallen.leaves = TRUE)
 
-#Plot the regression tree
-rpart.plot(fit, type=3, digits=3, fallen.leaves = TRUE)
+# Find the best cp to prune the tree
+tree$cptable
+plotcp(tree)
 
-#Predict the validation data
-p1<- predict(fit, x_val)
+# Prune the tree to get a optimal decision tree
+tree_pruned <- prune(tree,cp=0.039)
+rsq.rpart(tree_pruned)
 
-#Calculate the RMSE for the prediction and the validation data
+#Plot the final decision tree
+rpart.plot(tree_pruned, type=3, fallen.leaves = TRUE)
+
+# Predict the 20% validation data to compare accuracy with the other model
+p1<- predict(tree, x_val)
 rmse(y_val, p1)
 
 # Predict the 20% test data to compare accuracy with the other model
-p1<- predict(fit, x_test)
-
-#Calculate the RMSE for the prediction and the test data
-rmse(y_test, p1)
+p2<- predict(tree, x_test)
+rmse(y_test, p2)
