@@ -77,7 +77,9 @@ Pokemon generation refers to a chronological division by release. The first gene
 ```{r generations, fig.height = 3, fig.width = 5}
 print('Pokemon Generation')
 table(pokemon$Generation)
-barplot(table(pokemon$Generation), col=heat.colors(6), main = 'Pokemon Generation', xlab = 'Generation', ylab = 'Count')
+barplot(table(pokemon$Generation), col=heat.colors(6),
+        main = 'Pokemon Generation', xlab = 'Generation',
+        ylab = 'Count')
 ```
 
 Type 1 and type 2 refers to the main trait or element that the Pokemon possesses. Some pokemon have two main traits, while others only have one. Having several types of traits can present an advantage for a Pokemon during a fight.
@@ -90,7 +92,7 @@ par(las=2)
 barplot(sort(table(pokemon$Type.1)), 
         col = heat.colors(length(unique(pokemon$Type.1))), 
         main = 'Type 1 Pokemon',
-         ylab = 'Count')
+        ylab = 'Count')
 ```
 The most common type of pokemon is the Water type with 112 pokemon, followed by Normal type with 98 pokemon, and Grass type with 70 pokemon. The least common type 1 among the 800 pokémon is the Flying type with only 4 pokémon. 
 
@@ -169,8 +171,10 @@ To check for any statistical association between the pokemon features, we create
 ```{r data_cor}
 # visualization
 # feature correlation
-featCorr <- cor(select(pokemon, HP, Attack, Defense, Sp..Atk, Sp..Def, Speed )) # correlation table for features
-corrplot(featCorr, method = "color", type = "upper", addCoef.col = "black", tl.col = "black", diag = FALSE)
+# correlation table for features
+featCorr <- cor(select(pokemon, HP, Attack, Defense, Sp..Atk, Sp..Def, Speed ))
+corrplot(featCorr, method = "color", type = "upper",
+         addCoef.col = "black",tl.col = "black", diag = FALSE)
 ```
 
 When looking at the correlation plot, there is no strong correlation (greater than 0.80) between any two features. The highest correlation is between Defense vs. Sp..Def and Sp..Atk vs..Def, which in both cases is a positive correlation of 0.51. The cor values indicates how close two variables are to having a linear relationship with each other [@Wikipedia]. 
@@ -215,18 +219,27 @@ boxplot(Defense ~ Type.1,
 The sum of all the numerical features is a good indication of how strong a pokemon is. Next, there is a plot that brings together all the numerical characteristics of the Pokemon dataset. It shows which type of Pokemon is the strongest and therefore most likely to win a battle.
 
 ```{r data_pokemon_char}
-# set color for each pokemon type for plotting // hex codes from http://www.epidemicjohto.com/t882-type-colors-hex-colors
-color<-c("#6F35FC","#B7B7CE","#A98FF3","#F95587","#B6A136","#EE8130","#F7D02C","#705746","#735797","#E2BF65","#96D9D6","#6390F0","#7AC74C","#C22E28","#D685AD","#A33EA1","#A8A77A","#A6B91A")
+# set color for each pokemon type for plotting
+# hex codes from http://www.epidemicjohto.com/t882-type-colors-hex-colors
+color<-c("#6F35FC","#B7B7CE","#A98FF3","#F95587","#B6A136","#EE8130","#F7D02C",
+         "#705746","#735797","#E2BF65","#96D9D6","#6390F0","#7AC74C","#C22E28",
+         "#D685AD","#A33EA1","#A8A77A","#A6B91A")
 
 # pokemon characteristics
-#res<-data.frame(pokemon %>% dplyr::select(Type.1,HP, Attack, Defense, Sp..Atk, Sp..Def, Speed) %>% dplyr::group_by(Type.1) %>% dplyr::summarise_all(funs(mean)) %>% mutate(sumChars = HP + Attack + Defense + Sp..Atk + Sp..Def + Speed) %>% arrange(-sumChars))
-res <- select(pokemon, Type.1, HP, Attack, Defense, Sp..Atk, Sp..Def, Speed) # select particular features
-res <- group_by(res, Type.1) # group by pokemon type
-res <- summarise_all(res, funs(mean)) # get mean values for the types
-res <- mutate(res, sumChars = HP + Attack + Defense + Sp..Atk + Sp..Def + Speed) # sum up all mean values
-res <- arrange(res, -sumChars) # sort for values, descending
-res$color<-color # apply color scheme
-max<- ceiling(apply(res[,2:7], 2, function(x) max(x, na.rm = TRUE)) %>% sapply(as.double)) %>% as.vector
+# select particular features
+res <- select(pokemon, Type.1, HP, Attack, Defense, Sp..Atk, Sp..Def, Speed)
+# group by pokemon type
+res <- group_by(res, Type.1)
+# get mean values for the types
+res <- summarise_all(res, funs(mean)) 
+# sum up all mean values
+res <- mutate(res, sumChars = HP + Attack + Defense + Sp..Atk + Sp..Def + Speed)
+# sort for values, descending
+res <- arrange(res, -sumChars)
+res$color<-color
+# apply color scheme
+max<- ceiling(apply(res[,2:7], 2, function(x)
+  max(x, na.rm = TRUE)) %>% sapply(as.double)) %>% as.vector
 min<-rep.int(0,6)
 
 par(mfrow=c(3,6))
@@ -300,14 +313,19 @@ seconds_table <- get_seconds_table()
 The next step was to add the combat table information into the pokemon table. To do this, we counted the number of times a pokemon fought, won, attacked first or second and added it to the pokemon table.
 
 ```{r}
-win_counts <- sapply(pokemon$Name, function(x) win_table$count[match(x,win_table$Winner)])
-first_counts <- sapply(pokemon$Name, function(x) firsts_table$count[match(x,firsts_table$First_pokemon)])
-second_counts <- sapply(pokemon$Name, function(x) seconds_table$count[match(x,seconds_table$Second_pokemon)])
+win_counts <- sapply(pokemon$Name, function(x)
+  win_table$count[match(x,win_table$Winner)])
+first_counts <- sapply(pokemon$Name, function(x)
+  firsts_table$count[match(x,firsts_table$First_pokemon)])
+second_counts <- sapply(pokemon$Name, function(x)
+  seconds_table$count[match(x,seconds_table$Second_pokemon)])
 
 pokemon_feats <- cbind(pokemon, win_counts, first_counts, second_counts)
-pokemon_feats$losses <- pokemon_feats$first_counts + pokemon_feats$second_counts - pokemon_feats$win_counts
+pokemon_feats$losses <-
+  pokemon_feats$first_counts + pokemon_feats$second_counts - pokemon_feats$win_counts
 
-pokemon_feats$win_ratio <- pokemon_feats$win_counts / (pokemon_feats$second_counts + pokemon_feats$first_counts)
+pokemon_feats$win_ratio <-
+  pokemon_feats$win_counts / (pokemon_feats$second_counts + pokemon_feats$first_counts)
 head(pokemon_feats)
 ```
 
@@ -369,8 +387,10 @@ feats <- read.csv('data/features.csv')
 colSums(is.na(feats)) # some pokemon never fought
 # remove pokemons that never won
 feats_clean <- na.omit(feats)
-feats_clean$Legendary <- as.integer(as.logical(feats_clean$Legendary)) # convert category legendary into numerical values
-feats_clean <- select(feats_clean, -c(Generation, win_counts, losses)) # drop unnecessary generation column
+# convert category legendary into numerical values
+feats_clean$Legendary <- as.integer(as.logical(feats_clean$Legendary))
+# drop unnecessary generation column
+feats_clean <- select(feats_clean, -c(Generation, win_counts, losses))
 # typ <- as.integer(feats_clean$Type.1)
 #split train test data
 trainIndex = createDataPartition(feats_clean$win_ratio,
@@ -442,7 +462,8 @@ model_lasso <- train(x=x_train,y=y_train,
                      maximize=FALSE,
                      trControl=trainControl,
                      tuneGrid=expand.grid(alpha=1,  # Lasso regression
-                                          lambda=c(1,0.1,0.05,0.01,seq(0.009,0.001,-0.001),
+                                          lambda=c(1,0.1,0.05,0.01,
+                                                   seq(0.009,0.001,-0.001),
                                                    0.00075,0.0005,0.0001)))
 #model_lasso
 ```
@@ -466,7 +487,8 @@ rmse <- function(actual, predicted)
   error <- actual - predicted
   sqrt(mean(error^2))
 }
-cat("The RMSE for the Lasso model is", rmse(y_val, predLasso), "and for the Ridge model", rmse(y_val, predRidge))
+cat("The RMSE for the Lasso model is", rmse(y_val, predLasso),
+    "and for the Ridge model", rmse(y_val, predRidge))
 ```
 
 The results indicate that the models are not overfitted and can predict the win ratio of a certain Pokemon quite accurate. The Lasso model seems to perform better on this task.
@@ -476,8 +498,9 @@ The next plot shows which estimate variables are more important for the predicti
 ```{r}
 # quality of model
 # extract coefficients for the best performing model
-coef <- data.frame(coef.name = dimnames(coef(model_lasso$finalModel,s=model_lasso$bestTune$lambda))[[1]], 
-                   coef.value = matrix(coef(model_lasso$finalModel,s=model_lasso$bestTune$lambda)))
+coef <- data.frame(coef.name = dimnames(
+  coef(model_lasso$finalModel,s=model_lasso$bestTune$lambda))[[1]], 
+  coef.value = matrix(coef(model_lasso$finalModel,s=model_lasso$bestTune$lambda)))
 # exclude the (Intercept) term
 coef <- coef[-1,]
 # print summary of model results
