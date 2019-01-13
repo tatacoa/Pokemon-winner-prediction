@@ -544,7 +544,7 @@ In this chapture we discuss the second model of our project.
 We choosed a Decision Tree as a second model. The target variable for the tree is the win_ratio column. This column is a continious variable, so we need to use a regression tree:
 
 ```{r}
-tree <- rpart(y_train ~ . , data = x_train, method='anova', control = rpart.control(cp = 0.039))
+tree <- rpart(y_train ~ . , data = x_train, method='anova')
 rpart.plot(tree, type=3, digits=3, fallen.leaves = TRUE)
 ```
 
@@ -610,7 +610,7 @@ The trained regression tree model performed very well in predicting the test and
 of the model. The basic model without a complexity parameter worked also very well and without overfitting. Nevertheless, we decided to use the complexity parameter to get a smaller
 tree plot with the most important splits. So, finally we have 4 splits instead of 7.
 
-## 5 Conclusions
+## 5 Conclusion
 ```{r}
 cat("The RMSE for the Lasso model is", rmse1, "and for the Ridge model", rmse2)
 ```
@@ -618,4 +618,4 @@ cat("The RMSE for the Lasso model is", rmse1, "and for the Ridge model", rmse2)
 cat("The RMSE for the Regression tree model is", rmse_tree)
 ```
 
-## 6 References
+To conclude, we trained a ridge, lasso and regression tree model, to find the best working model for predicting the win_ratio for pokemons. By calculating RMSE, we are able to compare these models easily. Based on this value, we found out that lasso is the best performing model. The regression tree gives us slightly worse predictions for the win_ratio, but still very accurate. With that, we've decided to work with the lasso model.
