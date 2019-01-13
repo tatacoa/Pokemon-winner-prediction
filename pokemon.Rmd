@@ -594,3 +594,7 @@ Finally we predict and calculate the RMSE for the test data, to compare it with 
 p2<- predict(tree, x_test)
 rmse(y_test, p2)
 ```
+
+## 5 Conclusions
+
+## 6 References
