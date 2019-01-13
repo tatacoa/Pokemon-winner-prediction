@@ -1,6 +1,6 @@
 ---
 title: "Pokemon Winner Prediction"
-author: "Ana Maria Sandoval Jimenez, Arthur Gogohia, Shuaib, Viktor Treu"
+author: "Ana Maria Sandoval Jimenez, Arthur Gogohia, Shuaib Yunus, Viktor Treu"
 date: "13/01/2019"
 output:
   pdf_document:
@@ -494,8 +494,10 @@ Now we compute the RMSE metric with our test data to compare our models.
 ```{r}
 # RMSE for test data
 testLasso <- predict(model_lasso,newdata = x_test)
+testRidge <- predict(model_ridge,newdata = x_test)
 rmse1 <- rmse(y_test, testLasso)
 cat("The RMSE for the test data is", rmse(y_test, testLasso))
+rmse2 <- rmse(y_test, testRidge)
 ```
 
 The next plot shows which estimate variables are more important for the prediction.
@@ -610,7 +612,7 @@ tree plot with the most important splits. So, finally we have 4 splits instead o
 
 ## 5 Conclusions
 ```{r}
-cat("The RMSE for the Lasso model is", rmse1, "and for the Tree model", rmse2)
+cat("The RMSE for the Lasso model is", rmse1, "and for the Ridge model", rmse2)
 ```
 ```{r}
 cat("The RMSE for the Regression tree model is", rmse_tree)
