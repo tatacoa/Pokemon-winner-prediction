@@ -489,13 +489,22 @@ cat("The RMSE for the Lasso model is", rmse(y_val, predLasso),
 
 The results indicate that the models are not overfitted and can predict the win ratio of a certain Pokemon quite accurate. The Lasso model seems to perform better on this task.
 
+Now we compute the RMSE metric with our test data to compare our models.
+
+```{r}
+# RMSE for test data
+testLasso <- predict(model_lasso,newdata = x_test)
+rmse1 <- rmse(y_test, testLasso)
+cat("The RMSE for the test data is", rmse(y_test, testLasso))
+```
+
 The next plot shows which estimate variables are more important for the prediction.
 
 ```{r}
 # quality of model
 # extract coefficients for the best performing model
 coef <- data.frame(coef.name = dimnames(
-  coef(model_lasso$finalModel,s=model_lasso$bestTune$lambda))[[1]], 
+  coef(model_lasso$finalModel,s=model_lasso$bestTune$lambda))[[1]],
   coef.value = matrix(coef(model_lasso$finalModel,s=model_lasso$bestTune$lambda)))
 # exclude the (Intercept) term
 coef <- coef[-1,]
@@ -519,11 +528,11 @@ ggplot(imp_coef) +
 ```
 
 ### 3.3 Conclusions
-Our conclusion for the regression part is that both models perform well in this task. The Lasso model performes slightly better than its Ridge counterpart. This may result from the fact that in the Lasso models some variables are eliminated through the shrinkage term. 
+Our conclusion for the regression part is that both models perform well in this task. The Lasso model performes slightly better than its Ridge counterpart. This may result from the fact that in the Lasso models some variables are eliminated through the shrinkage term.
 
-Both models are not overfitted and can handle new data to predict the correct win ratio, as the RMSE of the fitted validation data is also small. 
+Both models are not overfitted and can handle new data to predict the correct win ratio, as the RMSE of the fitted validation data is also small.
 
-The Speed attribute of Pokemons is most important when it comes to winning a match. Attack and Defense seem also to play a bigger role, while the other estimate variables do not affect the outcome of a fight that much. 
+The Speed attribute of Pokemons is most important when it comes to winning a match. Attack and Defense seem also to play a bigger role, while the other estimate variables do not affect the outcome of a fight that much.
 
 ## 4 Model 2
 
@@ -584,15 +593,15 @@ rmse <- function(actual, predicted)
 The next step is to see, how accurate our model actually is. We predict the win_ratios for the test data:
 ```{r}
 # Predict the 20% validation data to compare accuracy with the other model
-p1<- predict(tree, x_val)
+p1<- predict(tree_pruned, x_val)
 rmse(y_val, p1)
 ```
 
 Finally we predict and calculate the RMSE for the test data, to compare it with the other models:
 ```{r}
 # Predict the 20% test data to compare accuracy with the other model
-p2<- predict(tree, x_test)
-rmse(y_test, p2)
+p2<- predict(tree_pruned, x_test)
+rmse_tree <- rmse(y_test, p2)
 ```
 ### 4.2 Decision Tree Conclusion
 The trained regression tree model performed very well in predicting the test and validation data. With the train data (60%) we got a RMSE of 0.07 - 0.088, which is an accurate prediction
@@ -600,5 +609,11 @@ of the model. The basic model without a complexity parameter worked also very we
 tree plot with the most important splits. So, finally we have 4 splits instead of 7.
 
 ## 5 Conclusions
+```{r}
+cat("The RMSE for the Lasso model is", rmse1, "and for the Tree model", rmse2)
+```
+```{r}
+cat("The RMSE for the Regression tree model is", rmse_tree)
+```
 
 ## 6 References
