@@ -1,6 +1,6 @@
 ---
 title: "Pokemon Winner Prediction"
-author: "Ana Maria, Arturo, Shuaib, Viktor"
+author: "Ana Maria Sandoval Jimenez, Arthur Gogohia, Shuaib, Viktor Treu"
 date: "13/01/2019"
 output:
   pdf_document:
