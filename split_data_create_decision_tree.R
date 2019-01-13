@@ -73,9 +73,9 @@ rsq.rpart(tree_pruned)
 rpart.plot(tree_pruned, type=3, fallen.leaves = TRUE)
 
 # Predict the 20% validation data to compare accuracy with the other model
-p1<- predict(tree, x_val)
+p1<- predict(tree_pruned, x_val)
 rmse(y_val, p1)
 
 # Predict the 20% test data to compare accuracy with the other model
-p2<- predict(tree, x_test)
-rmse(y_test, p2)
+p2<- predict(tree_pruned, x_test)
+rmse_tree <- rmse(y_test, p2)
