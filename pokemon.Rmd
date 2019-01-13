@@ -528,3 +528,73 @@ Our conclusion for the regression part is that both models perform well in this 
 Both models are not overfitted and can handle new data to predict the correct win ratio, as the RMSE of the fitted validation data is also small. 
 
 The Speed attribute of Pokemons is most important when it comes to winning a match. Attack and Defense seem also to play a bigger role, while the other estimate variables do not affect the outcome of a fight that much. 
+
+## 4 Model 2
+
+In this chapture we discuss the second model of our project.
+
+### 4.1 Decision Tree
+We choosed a Decision Tree as a second model. The target variable for the tree is the win_ratio column. This column is a continious variable, so we need to use a regression tree:
+
+```{r}
+tree <- rpart(y_train ~ . , data = x_train, method='anova', control = rpart.control(cp = 0.039))
+rpart.plot(tree, type=3, digits=3, fallen.leaves = TRUE)
+```
+
+The rpart function takes many different arguments to improve the model:
+
+rpart(formula, data, weights, subset, na.action = na.rpart, method,
+      model = FALSE, x = FALSE, y = TRUE, parms, control, cost, etc)
+
+The control argument itself offeres a lot of different customization for the tree algorithm:
+
+rpart.control(minsplit = 20, minbucket = round(minsplit/3), cp = 0.01,
+              maxcompete = 4, maxsurrogate = 5, usesurrogate = 2, xval = 10,
+              surrogatestyle = 0, maxdepth = 30, etc)
+
+Because we have to run a regression tree, we have to use the method "anova" in the rpart function. It is possible to add directly the complexity parameter to prune the tree. It is the amount by which splitting a node improved the relative error.We made this step after training the model, because we need to find the best value for the complexity parameter.
+```{r}
+# Find the best cp to prune the tree
+tree$cptable
+plotcp(tree)
+```
+
+The plot shows us, that 0.039 is the best value for the complexity parameter. The next step is to prune the tree, to get a optimal presentation of the tree:
+
+```{r}
+# Prune the tree to get a optimal decision tree
+tree_pruned <- prune(tree,cp=0.039)
+rsq.rpart(tree_pruned)
+```
+
+Now we can see, that the speed of a pokemon is the most important property to win a fight.
+
+The final step is to plot the trained tree with type=3 to draw separate split labels for the left and right directions and fallen.leaves = TRUE to position the leaf nodes at the bottom of the graph:
+```{r}
+#Plot the final decision tree
+rpart.plot(tree_pruned, type=3, fallen.leaves = TRUE)
+```
+
+Also for this model, we are using a function to calulate the RMSE:
+```{r}
+# Create Function to calculate Root Mean Square Error (RMSE)
+rmse <- function(actual, predicted)
+{
+  error <- actual - predicted
+  sqrt(mean(error^2))
+}
+```
+
+The next step is to see, how accurate our model actually is. We predict the win_ratios for the test data:
+```{r}
+# Predict the 20% validation data to compare accuracy with the other model
+p1<- predict(tree, x_val)
+rmse(y_val, p1)
+```
+
+Finally we predict and calculate the RMSE for the test data, to compare it with the other models:
+```{r}
+# Predict the 20% test data to compare accuracy with the other model
+p2<- predict(tree, x_test)
+rmse(y_test, p2)
+```
