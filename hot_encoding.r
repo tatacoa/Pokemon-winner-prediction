@@ -6,6 +6,8 @@ colSums(is.na(feats))
 # remove pokemons that never won
 feats2 <- feats[-(which(is.na(feats$win_ratio))),]
 dim(feats2)
+colnames(feats2)
+# for the hot encoding remove the pokemon name and Id column
 feats2 <- feats2[,c(4:18)]; head(feats2); 
 dim(feats2)
 
@@ -26,9 +28,10 @@ dummies <- dummyVars(~.,feats2[categorical_feats])
 categorical_1_hot <- predict(dummies,feats2[categorical_feats])
 categorical_1_hot[is.na(categorical_1_hot)] <- 0  #for any level that was NA, set to zero
 
-dummies
-categorical_1_hot
+head(dummies)
+head(categorical_1_hot)
 
+# join final dataset for modeling
 final_data <- cbind(feats2[numeric_feats],categorical_1_hot)
-
+# save file
 write.csv(final_data, file="./data/Model_data.csv")

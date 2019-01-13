@@ -1,6 +1,7 @@
 #ML2 Project
-# @Autor: Ana Maria - Arthur
+# Code for descriptive analysis of the data
 
+# Import Libraries
 #Libraries
 library(ggplot2)
 library(dplyr)
@@ -21,20 +22,21 @@ library(ROCR)
 #install.packages('tidyverse')
 #library(tidyverse)
 
-##### DATA IMPORT #####
+##### Data Load #####
 # Load data
 setwd("Pokemon-winner-prediction")
 pokemon <- read.csv('data/pokemon.csv')
+fights <- read.csv('./data/combats.csv')
 
 ##### EXPLORATY DATA ANALYSIS #####
-# data exploration
+# data exploration for Pokemon Data
 dim(pokemon)
 names(pokemon)
 head(pokemon)
 colSums(is.na(pokemon)) # no missing values
-table(pokemon$Type.1)
 summary(pokemon)
 
+# data exploration for Fights Data
 dim(fights)
 names(fights)
 head(pokemon)
@@ -62,7 +64,7 @@ barplot(table(pokemon$Generation),
 # plot specific feature distribution by Pokemon type
 boxplot(HP ~ Type.1,
         data=pokemon,
-        main="Health points Range by Pokemon Type",
+        main="Heat points Range by Pokemon Type",
         xlab="Type 1",
         ylab="Health points",
         col="grey",
